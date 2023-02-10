@@ -79,12 +79,10 @@ class WorkflowClient:
         with Path("info.plist").open("rb") as f:
             self.bundleid = plist_load(f)["bundleid"]
             self.log(f"bundleid: {self.bundleid}")
-        self.datadir = (
-            Path("~/Library/Application Support/Alfred/Workflow Data") / self.bundleid
-        )
+        self.datadir = Path("db")
         self.datadir.mkdir(parents=True, exist_ok=True)
 
-        self.log(f"datadir: {self.datadir}")
+        self.log(f"datadir: {self.datadir.absolute()}")
         self.db_results = self.datadir / "results.yml"
         self.log(f"db_results: {self.db_results}")
 
