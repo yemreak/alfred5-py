@@ -3,7 +3,7 @@ from os.path import basename, splitext
 from setuptools import find_packages, setup
 from pathlib import Path
 
-VERSION = "1.0.2"
+VERSION = "1.0.3"
 README_PATH = "docs/README.md"
 USERNAME = "yedhrab"
 REPOSITORY = "alfred5"
@@ -35,7 +35,9 @@ setup(
         "Topic :: Utilities",
     ],
     project_urls={
-        "Changelog": f"https://github.com/{USERNAME}/{REPOSITORY}/blob/master/docs/CHANGELOG.md",
+        "Source": f"https://github.com/{USERNAME}/{REPOSITORY}/",
+        "Documentation": f"https://github.com/{USERNAME}/{REPOSITORY}/blob/master/docs/README.md",
+        "Changelog": f"https://github.com/{USERNAME}/{REPOSITORY}/releases",
         "Issue Tracker": f"https://github.com/{USERNAME}/{REPOSITORY}/issues",
     },
     keywords=[
@@ -47,7 +49,7 @@ setup(
         "alfred-snippets",
     ],
     python_requires=">=3.9.6",
-    install_requires=["aiohttp==3.8.3"],
+    install_requires=["aiohttp==3.8.3", "ruamel.yaml==0.17.21"],
     extras_require={},
     setup_requires=[],
     entry_points={},

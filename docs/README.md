@@ -4,13 +4,9 @@ Simplest Alfred Client that I use my own projects.
 
 - Via `SnippetsClient` API create custom snippets programmaically
 - Via `WorkflowClient` API create custom alfred workflow
-
-## 🔰 How to Create Workflow
-
-![insturaction1](https://i.imgur.com/2oDMChr.png)
-![insturaction2](https://i.imgur.com/IMVWNDm.png)
-![insturaction3](https://i.imgur.com/WicJKBN.png)
-![insturaction4](https://i.imgur.com/AwPNT8Y.png)
+- Use `WorkflowClient.log` to log your message to alfred debugger 
+    - [debugging alfred workflow](https://www.alfredapp.com/help/workflows/utilities/debug/)
+    - [why this project use stderr for all logging operation](https://www.alfredforum.com/topic/14721-get-the-python-output-back-to-alfred/?do=findComment&comment=75303)
 
 ## ⭐️ Example Project
 
@@ -25,6 +21,11 @@ from alfred5 import WorkflowClient
 
 async def main(client: WorkflowClient):
     query = client.query
+    client.log(f"my query: {query}")  # use it to see your log in workflow debug panel
+
+    # Use cache system to quick response
+    if client.load_cached_response():
+        return
 
     char_count = str(len( query))
     word_count = str(len(query.split(" ")))
@@ -47,11 +48,22 @@ async def main(client: WorkflowClient):
     client.add_result(char_count, "Characters", arg=char_count)
     client.add_result(word_count, "Words", arg=word_count)
     client.add_result(line_count, "Lines", arg=line_count)
+    
+    client.cache_response()  # to cache result for query (if u work with static results (not dynamic; coin price etc.))
 
 if __name__ == "__main__":
     WorkflowClient.run(main)
 
 ```
+
+
+## 🔰 How to Create Workflow
+
+![insturaction1](https://i.imgur.com/2oDMChr.png)
+![insturaction2](https://i.imgur.com/IMVWNDm.png)
+![insturaction3](https://i.imgur.com/WicJKBN.png)
+![insturaction4](https://i.imgur.com/AwPNT8Y.png)
+
 
 ## 🪪 License
 
