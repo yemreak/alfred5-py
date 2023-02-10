@@ -36,7 +36,7 @@ setup(
     ],
     project_urls={
         "Source": f"https://github.com/{USERNAME}/{REPOSITORY}/",
-        "Documentation": f"https://github.com/{USERNAME}/{REPOSITORY}/blob/master/docs/README.md",
+        "Documentation": f"https://github.com/{USERNAME}/{REPOSITORY}/wiki",
         "Changelog": f"https://github.com/{USERNAME}/{REPOSITORY}/releases",
         "Issue Tracker": f"https://github.com/{USERNAME}/{REPOSITORY}/issues",
     },
