@@ -5,6 +5,13 @@ Simplest Alfred Client that I use my own projects.
 - Via `SnippetsClient` API create custom snippets programmaically
 - Via `WorkflowClient` API create custom alfred workflow
 
+## 🔰 How to Create Workflow
+
+![insturaction1](https://i.imgur.com/2oDMChr.png)
+![insturaction2](https://i.imgur.com/IMVWNDm.png)
+![insturaction3](https://i.imgur.com/WicJKBN.png)
+![insturaction4](https://i.imgur.com/AwPNT8Y.png)
+
 ## ⭐️ Example Project
 
 ![alt](https://i.imgur.com/tUJjVUJ.png)
