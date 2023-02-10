@@ -2,6 +2,10 @@
 
 Simplest Alfred Client that I use my own projects.
 
+```bash
+pip install alfred5
+```
+
 - Via `SnippetsClient` API create custom snippets programmaically
 - Via `WorkflowClient` API create custom alfred workflow
 - Use `WorkflowClient.log` to log your message to alfred debugger 
