@@ -11,6 +11,13 @@ pip install alfred5
 - Use `WorkflowClient.log` to log your message to alfred debugger 
     - [debugging alfred workflow](https://www.alfredapp.com/help/workflows/utilities/debug/)
     - [why this project use stderr for all logging operation](https://www.alfredforum.com/topic/14721-get-the-python-output-back-to-alfred/?do=findComment&comment=75303)
+- Use `client.load_cached_response` and `client.cache_response` method to use caching system
+    - Just do it for static response (not timebased response)
+    - Db path is `db/results.yml` also you can see it from workflow debug panel
+
+## Example Db Format
+
+![example-db](https://i.imgur.com/EW4KSq0.png)
 
 ## ⭐️ Example Project
 
