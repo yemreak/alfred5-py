@@ -11,6 +11,7 @@ from zipfile import ZIP_DEFLATED, ZipFile
 from ruamel.yaml import load as yaml_load, dump as yaml_dump
 from plistlib import load as plist_load
 from .models import SNIPPET_INFO_TEMPLATE, Result, Snippet, yaml
+from typing import NoReturn
 
 
 class SnippetClient:
@@ -91,7 +92,7 @@ class WorkflowClient:
     def log(self, msg: str):
         self.logger.debug(msg)
 
-    def cache_response(self):
+    def cache_response(self) -> None:
         """Cache response to workflow db_results"""
         if not self.db_results.exists():
             self.db_results.parent.mkdir(parents=True, exist_ok=True)
@@ -118,7 +119,9 @@ class WorkflowClient:
         return False
 
     @classmethod
-    def run(cls, func: Callable[[WorkflowClient], Coroutine[None, None, None]]) -> None:
+    def run(
+        cls, func: Callable[[WorkflowClient], Coroutine[None, None, None]]
+    ) -> NoReturn:
         """Give async main function, no need to call `client.response` method
 
         ```
@@ -132,8 +135,15 @@ class WorkflowClient:
         ```
         """
         client = cls()
-        run(func(client))
-        client.response()
+        try:
+            run(func(client))
+            client.response()
+        except Exception as e:
+            client.error_response(
+                title="Error",
+                subtitle=str(e),
+                icon_path="icons/error.png",
+            )
 
     def add_result(
         self,
@@ -142,7 +152,7 @@ class WorkflowClient:
         icon_path: str | Path | None = None,
         arg: str = "",
         http_downloader: Callable[[str], str] | None = None,
-    ):
+    ) -> None:
         """Create and add alfred result."""
         icon = None
         if icon_path:
@@ -152,11 +162,13 @@ class WorkflowClient:
             icon = Result.Icon(str(icon_path))
         self.results.append(Result(title=title, subtitle=subtitle, icon=icon, arg=arg))
 
-    def error_response(self, title: str, subtitle: str, icon_path: str | Path = ""):
+    def error_response(
+        self, title: str, subtitle: str, icon_path: str | Path = ""
+    ) -> NoReturn:
         self.add_result(title=title, subtitle=subtitle, icon_path=icon_path)
         self.response()
 
-    def response(self):
+    def response(self) -> NoReturn:
         """Print alfred results and exit."""
         print(json.dumps({"items": [result.to_dict() for result in self.results]}))
         exit(0)
