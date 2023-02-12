@@ -139,11 +139,7 @@ class WorkflowClient:
             run(func(client))
             client.response()
         except Exception as e:
-            client.error_response(
-                title="Error",
-                subtitle=str(e),
-                icon_path="icons/error.png",
-            )
+            client.error_response(title="Error", subtitle=str(e))
 
     def add_result(
         self,
@@ -163,9 +159,13 @@ class WorkflowClient:
         self.results.append(Result(title=title, subtitle=subtitle, icon=icon, arg=arg))
 
     def error_response(
-        self, title: str, subtitle: str, icon_path: str | Path = ""
+        self, title: str, subtitle: str, icon_path: str | Path | None = None
     ) -> NoReturn:
-        self.add_result(title=title, subtitle=subtitle, icon_path=icon_path)
+        self.add_result(
+            title=title,
+            subtitle=subtitle,
+            icon_path=icon_path or Path(__file__).parent / "icons" / "error.png",
+        )
         self.response()
 
     def response(self) -> NoReturn:
