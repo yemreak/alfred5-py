@@ -1,6 +1,7 @@
 from __future__ import annotations
 from logging import Logger, StreamHandler
 import json
+from traceback import format_exc
 import sys
 from asyncio import run
 from collections.abc import Callable, Coroutine
@@ -139,7 +140,9 @@ class WorkflowClient:
             run(func(client))
             client.response()
         except Exception as e:
-            client.error_response(title="Error", subtitle=str(e))
+            client.error_response(
+                title=str(e), subtitle=format_exc().strip().split("\n")[-1]
+            )
 
     def add_result(
         self,
