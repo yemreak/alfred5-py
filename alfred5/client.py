@@ -13,6 +13,7 @@ from ruamel.yaml import load as yaml_load, dump as yaml_dump
 from plistlib import load as plist_load
 from .models import SNIPPET_INFO_TEMPLATE, Result, Snippet, yaml
 from typing import NoReturn
+from .errors import WorkflowError
 
 
 class SnippetClient:
@@ -140,9 +141,12 @@ class WorkflowClient:
             run(func(client))
             client.response()
         except Exception as e:
-            client.error_response(
-                title=str(e), subtitle=format_exc().strip().split("\n")[-1]
-            )
+            if isinstance(e, WorkflowError):
+                client.error_response(title=e.title, subtitle=e.subtitle)
+            else:
+                client.error_response(
+                    title=str(e), subtitle=format_exc().strip().split("\n")[-1]
+                )
 
     def add_result(
         self,
