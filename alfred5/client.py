@@ -61,6 +61,8 @@ class WorkflowClient:
     page_count: int
     bundleid: str
 
+    icondir: Path
+
     datadir: Path
     db_results: Path
 
@@ -80,6 +82,8 @@ class WorkflowClient:
             f"sys.argv: {sys.argv} page_count: {self.page_count} query: {self.query}"
         )
 
+        self.icondir = Path(__file__).parent / "icons"
+
         self.log(f"bundleid reading from info.plist...")
         with Path("info.plist").open("rb") as f:
             self.bundleid = plist_load(f)["bundleid"]
@@ -97,6 +101,37 @@ class WorkflowClient:
 
     def log(self, msg: str):
         self.logger.debug(msg)
+
+    def install_requirements(self) -> None:
+        """Check if requirements are met"""
+        self.log(f"checking requirements...")
+        req_file = Path("requirements.txt")
+        if req_file.exists():
+            packages = req_file.read_text().splitlines()
+            self.log(f"found requirements.txt: {packages}")
+            try:
+                import pkg_resources
+
+                pkg_resources.require(packages)
+            except Exception:
+                import subprocess
+
+                command = ["python3", "-m", "pip", "install", "--target=.", *packages]
+                subprocess.Popen(
+                    command,
+                    start_new_session=True,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
+                self.add_result(
+                    title="Requirements are installing (you can close alfred)",
+                    subtitle=f"Executed command: {' '.join(command)}",
+                    icon_path=self.icondir / "download.png",
+                    arg=" ".join(command),
+                )
+                self.response()
+        else:
+            self.log(f"no requirements.txt found")
 
     def cache_response(self) -> None:
         """Cache response to workflow db_results"""
@@ -158,14 +193,21 @@ class WorkflowClient:
         """
         client = cls()
         try:
+            client.install_requirements()
             run(func(client))
             client.response()
         except Exception as e:
             if isinstance(e, WorkflowError):
-                client.error_response(title=e.title, subtitle=e.subtitle)
+                client.error_response(
+                    title=e.title,
+                    subtitle=e.subtitle,
+                    arg=e.arg,
+                )
             else:
                 client.error_response(
-                    title=str(e), subtitle=format_exc().strip().split("\n")[-1]
+                    title=str(e),
+                    subtitle=format_exc().strip().split("\n")[-1],
+                    arg=format_exc().strip(),
                 )
 
     def add_result(
@@ -176,7 +218,14 @@ class WorkflowClient:
         arg: str = "",
         http_downloader: Callable[[str], str] | None = None,
     ) -> None:
-        """Create and add alfred result."""
+        """Create and add alfred result
+
+        - title: result title
+        - subtitle: result subtitle
+        - icon_path: result icon path
+        - arg: argument to pass to alfred
+        - http_downloader: function to download http icon
+        """
         icon = None
         if icon_path:
             if http_downloader and "http" in str(icon_path):
@@ -186,16 +235,32 @@ class WorkflowClient:
         self.results.append(Result(title=title, subtitle=subtitle, icon=icon, arg=arg))
 
     def error_response(
-        self, title: str, subtitle: str, icon_path: str | Path | None = None
+        self,
+        title: str,
+        subtitle: str,
+        icon_path: str | Path | None = None,
+        arg: str = "",
     ) -> NoReturn:
+        """Create and add alfred error result
+
+        - title: error title
+        - subtitle: error subtitle
+        - icon_path: error icon path
+        - arg: argument to pass to alfred
+        - terminate: terminate workflow
+        """
         self.add_result(
             title=title,
             subtitle=subtitle,
-            icon_path=icon_path or Path(__file__).parent / "icons" / "error.png",
+            icon_path=icon_path or self.icondir / "error.png",
+            arg=arg,
         )
         self.response()
 
     def response(self) -> NoReturn:
-        """Print alfred results and exit."""
+        """Print alfred results and exit
+
+        - terminate: terminate workflow
+        """
         print(json.dumps({"items": [result.to_dict() for result in self.results]}))
         exit(0)

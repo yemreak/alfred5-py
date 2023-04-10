@@ -1,3 +1,4 @@
 include LICENSE
 include docs/README.md
 include alfred5/icons/error.png
+include alfred5/icons/download.png
