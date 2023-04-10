@@ -9,6 +9,10 @@ pip install alfred5
 - Via `SnippetsClient` API create custom snippets programmaically
 - Via `WorkflowClient` API create custom alfred workflow
     - Craete `requirements.txt` file for your python project to let `alfred5` installs them if needed 🙃
+    - To install `from requirements.txt` do all import packages inside `main`
+            - Use `global` keyword to access imported packages globally
+        - `client.query` is the query string
+        - `client.page_count` is the page count for pagination results
     - Dont need to add `alfred5` to `requirements.txt`
 - Use `WorkflowClient.log` to log your message to alfred debugger 
     - [debugging alfred workflow](https://www.alfredapp.com/help/workflows/utilities/debug/)
@@ -33,6 +37,10 @@ from alfred5 import WorkflowClient
 
 
 async def main(client: WorkflowClient):
+    # To auto install requirements all import operation must be in here
+    global get
+    from requests import get
+
     query = client.query
     client.log(f"my query: {query}")  # use it to see your log in workflow debug panel
 
