@@ -1,6 +1,7 @@
 from __future__ import annotations
 from logging import Logger, StreamHandler
 import json
+from .models import Result
 from traceback import format_exc
 import sys
 from asyncio import run
@@ -11,9 +12,10 @@ from tempfile import TemporaryDirectory
 from zipfile import ZIP_DEFLATED, ZipFile
 from ruamel.yaml import load as yaml_load, dump as yaml_dump
 from plistlib import load as plist_load
-from .models import SNIPPET_INFO_TEMPLATE, Result, Snippet, yaml
+from .models import SNIPPET_INFO_TEMPLATE, Result, Snippet
 from typing import NoReturn
 from .errors import WorkflowError
+from ruamel.yaml import YAML
 
 
 class SnippetClient:
@@ -89,6 +91,8 @@ class WorkflowClient:
         self.db_results = self.datadir / "results.yml"
         self.log(f"db_results: {self.db_results}")
 
+        self.yaml = YAML()
+
         self.results = []
 
     def log(self, msg: str):
@@ -101,7 +105,14 @@ class WorkflowClient:
             self.db_results.touch()
         with self.db_results.open("r") as f:
             data = yaml_load(f) or {}
-        data[self.query] = self.results
+        data[self.query] = [
+            {
+                "title": result.title,
+                "subtitle": result.subtitle,
+                "icon_path": result.icon.path if result.icon else None,
+            }
+            for result in self.results
+        ]
         with self.db_results.open("w") as f:
             yaml_dump(data, f)
             self.log(f"cached response to {self.db_results}")
@@ -111,10 +122,19 @@ class WorkflowClient:
         self.log(f"checking if `{self.query}` exists in `{self.db_results}`")
         if self.db_results.exists():
             with self.db_results.open("r") as f:
-                data: dict[str, list[Result]] = yaml.load(f)
+                data: dict[str, list[dict[str, str]]] = self.yaml.load(f)
                 self.log(f"loaded data from {self.db_results} {len(data.keys())}")
                 if self.query in data:
-                    self.results = data[self.query]
+                    self.results = [
+                        Result(
+                            title=result["title"],
+                            subtitle=result["subtitle"],
+                            icon=Result.Icon(result["icon_path"])
+                            if result["icon_path"]
+                            else None,
+                        )
+                        for result in data[self.query]
+                    ]
                     self.log(f"found: {self.query} in {self.db_results}")
                     return True
         self.log(f"not found `{self.query}` in `{self.db_results}`")
