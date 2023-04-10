@@ -1,6 +1,7 @@
 from __future__ import annotations
 from logging import Logger, StreamHandler
 import json
+import pkg_resources
 from .models import Result
 from traceback import format_exc
 import sys
@@ -109,11 +110,10 @@ class WorkflowClient:
         if req_file.exists():
             packages = req_file.read_text().splitlines()
             self.log(f"found requirements.txt: {packages}")
-            try:
-                import pkg_resources
 
+            try:
                 pkg_resources.require(packages)
-            except Exception:
+            except pkg_resources.DistributionNotFound:
                 import subprocess
 
                 command = ["python3", "-m", "pip", "install", "--target=.", *packages]
@@ -181,6 +181,8 @@ class WorkflowClient:
     ) -> NoReturn:
         """Give async main function, no need to call `client.response` method
 
+        - To install `from requirements.txt` do all import packages inside it
+            - Use `global` keyword to access imported packages globally
         - `client.query` is the query string
         - `client.page_count` is the page count for pagination results
 
@@ -189,6 +191,8 @@ class WorkflowClient:
             from alfred import WorkflowClient
 
             async def main(client: WorkflowClient):
+                global get
+                from requests import get
                 pass
 
             if __name__ == "__main__":
