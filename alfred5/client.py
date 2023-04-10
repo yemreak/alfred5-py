@@ -181,15 +181,19 @@ class WorkflowClient:
     ) -> NoReturn:
         """Give async main function, no need to call `client.response` method
 
-        ```
-        from alfred import AlfredWorkflowClient
+        - `client.query` is the query string
+        - `client.page_count` is the page count for pagination results
 
-        async def main(alfred_client: AlfredWorkflowClient):
-            pass
+        Example:
+            ```
+            from alfred import WorkflowClient
 
-        if __name__ == "__main__":
-            AlfredWorkflowClient.run(main)
-        ```
+            async def main(client: WorkflowClient):
+                pass
+
+            if __name__ == "__main__":
+                WorkflowClient.run(main)
+            ```
         """
         client = cls()
         try:
