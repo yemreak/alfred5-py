@@ -8,6 +8,8 @@ pip install alfred5
 
 - Via `SnippetsClient` API create custom snippets programmaically
 - Via `WorkflowClient` API create custom alfred workflow
+    - Craete `requirements.txt` file for your python project to let `alfred5` installs them if needed 🙃
+    - Dont need to add `alfred5` to `requirements.txt`
 - Use `WorkflowClient.log` to log your message to alfred debugger 
     - [debugging alfred workflow](https://www.alfredapp.com/help/workflows/utilities/debug/)
     - [why this project use stderr for all logging operation](https://www.alfredforum.com/topic/14721-get-the-python-output-back-to-alfred/?do=findComment&comment=75303)
@@ -17,7 +19,7 @@ pip install alfred5
 
 ## Example Db Format
 
-![example-db](https://i.imgur.com/EW4KSq0.png)
+![example-db](https://i.imgur.com/r2whZsi.png)
 
 ## ⭐️ Example Project
 
