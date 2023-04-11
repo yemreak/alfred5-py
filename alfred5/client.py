@@ -58,6 +58,7 @@ class SnippetClient:
 
 
 class WorkflowClient:
+    bare_query: str
     query: str
     page_count: int
     bundleid: str
@@ -76,8 +77,9 @@ class WorkflowClient:
         self.logger.addHandler(StreamHandler(sys.stderr))
         self.log(f"logger initted")
 
-        self.page_count = sys.argv[1].count("+") + 1
-        self.query = sys.argv[1].replace("+", "")
+        self.bare_query = sys.argv[1]
+        self.page_count = self.bare_query.count("+") + 1
+        self.query = self.bare_query.replace("+", "")
 
         self.log(
             f"sys.argv: {sys.argv} page_count: {self.page_count} query: {self.query}"
@@ -140,7 +142,7 @@ class WorkflowClient:
             self.db_results.touch()
         with self.db_results.open("r") as f:
             data = yaml_load(f) or {}
-        data[self.query] = [
+        data[self.bare_query] = [
             {
                 "title": result.title,
                 "subtitle": result.subtitle,
@@ -154,12 +156,12 @@ class WorkflowClient:
 
     def load_cached_response(self) -> bool:
         """Load cached result from alfred"""
-        self.log(f"checking if `{self.query}` exists in `{self.db_results}`")
+        self.log(f"checking if `{self.bare_query}` exists in `{self.db_results}`")
         if self.db_results.exists():
             with self.db_results.open("r") as f:
                 data: dict[str, list[dict[str, str]]] = self.yaml.load(f)
                 self.log(f"loaded data from {self.db_results} {len(data.keys())}")
-                if self.query in data:
+                if self.bare_query in data:
                     self.results = [
                         Result(
                             title=result["title"],
@@ -168,29 +170,36 @@ class WorkflowClient:
                             if result["icon_path"]
                             else None,
                         )
-                        for result in data[self.query]
+                        for result in data[self.bare_query]
                     ]
-                    self.log(f"found: {self.query} in {self.db_results}")
+                    self.log(f"found: {self.bare_query} in {self.db_results}")
                     return True
-        self.log(f"not found `{self.query}` in `{self.db_results}`")
+        self.log(f"not found `{self.bare_query}` in `{self.db_results}`")
         return False
 
     @classmethod
     def run(
-        cls, func: Callable[[WorkflowClient], Coroutine[None, None, None]]
+        cls,
+        func: Callable[[WorkflowClient], Coroutine[None, None, None]],
+        cache: bool = False,
     ) -> NoReturn:
         """Give async main function, no need to call `client.response` method
 
+        Args:
+            `func`: async main function that takes `client` as argument
+            `cache`: cache response to workflow db_results, if cache exists, it will be loaded instead of executing `func`
+
         - To install `from requirements.txt` do all import packages inside it
             - Use `global` keyword to access imported packages globally
-        - `client.query` is the query string
+        - `client.bare_query` is the bare query string
+        - `client.query` is the query string without `+` (page count)
         - `client.page_count` is the page count for pagination results
 
         Example:
             ```
             from alfred import WorkflowClient
 
-            async def main(client: WorkflowClient):
+            async def main(client: WorkflowClient, cache=True):
                 global get
                 from requests import get
                 pass
@@ -200,9 +209,13 @@ class WorkflowClient:
             ```
         """
         client = cls()
+        if cache and client.load_cached_response():
+            client.response()
         try:
             client.install_requirements()
             run(func(client))
+            if cache:
+                client.cache_response()
             client.response()
         except Exception as e:
             if isinstance(e, WorkflowError):
