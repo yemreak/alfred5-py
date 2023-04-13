@@ -147,6 +147,7 @@ class WorkflowClient:
                 "title": result.title,
                 "subtitle": result.subtitle,
                 "icon_path": result.icon.path if result.icon else None,
+                "arg": result.arg,
             }
             for result in self.results
         ]
@@ -169,6 +170,7 @@ class WorkflowClient:
                             icon=Result.Icon(result["icon_path"])
                             if result["icon_path"]
                             else None,
+                            arg=result["arg"],
                         )
                         for result in data[self.bare_query]
                     ]
