@@ -21,10 +21,6 @@ pip install alfred5
     - Just do it for static response (not timebased response)
     - Db path is `db/results.yml` also you can see it from workflow debug panel
 
-## Example Db Format
-
-![example-db](https://i.imgur.com/r2whZsi.png)
-
 ## ⭐️ Example Project
 
 ![alt](https://i.imgur.com/tUJjVUJ.png)
