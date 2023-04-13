@@ -58,16 +58,14 @@ class SnippetClient:
 
 
 class WorkflowClient:
-    bare_query: str
-    query: str
+    bare_query: str | None
+    query: str | None
     page_count: int
+
     bundleid: str
-
     icondir: Path
-
     datadir: Path
     db_results: Path
-
     results: list[Result]
 
     logger: Logger
@@ -77,9 +75,14 @@ class WorkflowClient:
         self.logger.addHandler(StreamHandler(sys.stderr))
         self.log(f"logger initted")
 
-        self.bare_query = sys.argv[1]
-        self.page_count = self.bare_query.count("+") + 1
-        self.query = self.bare_query.replace("+", "")
+        if len(sys.argv) > 1:
+            self.bare_query = sys.argv[1]
+            self.page_count = self.bare_query.count("+") + 1
+            self.query = self.bare_query.replace("+", "")
+        else:
+            self.bare_query = None
+            self.page_count = 0
+            self.query = None
 
         self.log(
             f"sys.argv: {sys.argv} page_count: {self.page_count} query: {self.query}"
@@ -131,7 +134,7 @@ class WorkflowClient:
                     icon_path=self.icondir / "download.png",
                     arg=" ".join(command),
                 )
-                self.response()
+                self.response_with_results()
         else:
             self.log(f"no requirements.txt found")
 
@@ -157,12 +160,16 @@ class WorkflowClient:
 
     def load_cached_response(self) -> bool:
         """Load cached result from alfred"""
+        if self.bare_query:
+            self.log("skipped, bare_query is None")
+            return False
+
         self.log(f"checking if `{self.bare_query}` exists in `{self.db_results}`")
         if self.db_results.exists():
             with self.db_results.open("r") as f:
                 data: dict[str, list[dict[str, str]]] = self.yaml.load(f)
                 self.log(f"loaded data from {self.db_results} {len(data.keys())}")
-                if self.bare_query in data:
+                if self.bare_query and self.bare_query in data:
                     self.results = [
                         Result(
                             title=result["title"],
@@ -212,13 +219,13 @@ class WorkflowClient:
         """
         client = cls()
         if cache and client.load_cached_response():
-            client.response()
+            client.response_with_results()
         try:
             client.install_requirements()
             run(func(client))
             if cache:
                 client.cache_response()
-            client.response()
+            client.response_with_results()
         except Exception as e:
             if isinstance(e, WorkflowError):
                 client.error_response(
@@ -278,12 +285,42 @@ class WorkflowClient:
             icon_path=icon_path or self.icondir / "error.png",
             arg=arg,
         )
-        self.response()
+        self.response_with_results()
 
-    def response(self) -> NoReturn:
-        """Print alfred results and exit
+    def response_with_results(self) -> NoReturn:
+        """Print saved alfred results and exit
 
         - terminate: terminate workflow
         """
         print(json.dumps({"items": [result.to_dict() for result in self.results]}))
+        exit(0)
+
+    def response(
+        self,
+        title: str,
+        subtitle: str = "",
+        icon_path: str | Path | None = None,
+        arg: str = "",
+    ) -> NoReturn:
+        """Print alfred result and exit
+
+        - title: result title
+        - subtitle: result subtitle
+        - icon_path: result icon path
+        - arg: argument to pass to alfred
+        """
+        print(
+            json.dumps(
+                {
+                    "items": [
+                        Result(
+                            title=title,
+                            subtitle=subtitle,
+                            icon=Result.Icon(str(icon_path)) if icon_path else None,
+                            arg=arg,
+                        ).to_dict()
+                    ]
+                }
+            )
+        )
         exit(0)
