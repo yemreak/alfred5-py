@@ -40,7 +40,7 @@ async def main(client: WorkflowClient):
     query = client.query
     client.log(f"my query: {query}")  # use it to see your log in workflow debug panel
 
-    # (use cache=True) Use cache system to quick response
+    # (use cache=True) Use cache system to quick response instead of old style that below
     # if client.load_cached_response():
     #     return
 
@@ -66,7 +66,8 @@ async def main(client: WorkflowClient):
     client.add_result(word_count, "Words", arg=word_count)
     client.add_result(line_count, "Lines", arg=line_count)
     
-    # (use cache=True) to cache result for query (if u work with static results (not dynamic; coin price etc.))
+    # (use cache=True) to cache result for query instead of old style that below
+    #     if u work with static results (not dynamic; coin price etc.)
     # client.cache_response()  
 
 if __name__ == "__main__":
