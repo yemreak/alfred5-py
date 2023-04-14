@@ -13,6 +13,13 @@ pip install alfred5
         ```bash
         pip install alfred5 --target=src/lib
         ```
+    - Add the top of the `main.py`
+        ```python
+            import sys
+
+            sys.path.insert(0, "src/libs")
+        ```
+        - ![main](https://i.imgur.com/O6rYLQA.png)
     - If u want to use different `--target` for ex `.` use `WorkflowClient.run(packagedir=".")`
     - Sample of default structure: 
         - ![structure](https://i.imgur.com/doLWDR4.png)
@@ -52,6 +59,9 @@ pip install alfred5
 ```python
 from re import sub
 from urllib.parse import quote_plus
+import sys
+
+sys.path.insert(0, "src/libs")
 
 from alfred5 import WorkflowClient
 
