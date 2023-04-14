@@ -18,11 +18,17 @@ pip install alfred5
         - ![structure](https://i.imgur.com/doLWDR4.png)
     - **If u install all of requirements, dont need to create `requirements.txt` file in `src`**
     - _If you use `vscode`, add the code that below to `.vscode/settings.json` to debug your file_
-        - ![vscode](https://i.imgur.com/g0wdImt.png)
+        - ![vscode](https://i.imgur.com/QeseMTr.png)
         ```json
-        "python.analysis.extraPaths": [
-            "./src/libs"
-        ]
+        {
+            "python.analysis.extraPaths": [
+                "./src/libs"
+            ],
+            "python.analysis.exclude": [
+                "./src/libs"
+            ]
+        }
+
         ```
 - Via `SnippetsClient` API create custom snippets programmaically
 - Via `WorkflowClient` API create custom alfred workflow
