@@ -63,6 +63,7 @@ class WorkflowClient:
     page_count: int
 
     bundleid: str
+    package_dir: Path
     icondir: Path
     datadir: Path
     db_results: Path
@@ -70,7 +71,7 @@ class WorkflowClient:
 
     logger: Logger
 
-    def __init__(self) -> None:
+    def __init__(self, package_dir: str = "src/libs") -> None:
         self.logger = Logger("alfred5")
         self.logger.addHandler(StreamHandler(sys.stderr))
         self.log(f"logger initted")
@@ -88,6 +89,7 @@ class WorkflowClient:
             f"sys.argv: {sys.argv} page_count: {self.page_count} query: {self.query}"
         )
 
+        self.package_dir = Path(package_dir)
         self.icondir = Path(__file__).parent / "icons"
 
         self.log(f"bundleid reading from info.plist...")
@@ -111,7 +113,7 @@ class WorkflowClient:
     def install_requirements(self) -> None:
         """Check if requirements are met"""
         self.log(f"checking requirements...")
-        req_file = Path("requirements.txt")
+        req_file = self.package_dir / ".." / "requirements.txt"
         if req_file.exists():
             packages = req_file.read_text().splitlines()
             self.log(f"found requirements.txt: {packages}")
@@ -121,7 +123,14 @@ class WorkflowClient:
             except pkg_resources.DistributionNotFound:
                 import subprocess
 
-                command = ["python3", "-m", "pip", "install", "--target=.", *packages]
+                command = [
+                    "python3",
+                    "-m",
+                    "pip",
+                    "install",
+                    f"--target={self.package_dir}",
+                    *packages,
+                ]
                 subprocess.Popen(
                     command,
                     start_new_session=True,
@@ -191,12 +200,14 @@ class WorkflowClient:
         cls,
         func: Callable[[WorkflowClient], Coroutine[None, None, None]],
         cache: bool = False,
+        package_dir: str = "src/libs",
     ) -> NoReturn:
         """Give async main function, no need to call `client.response` method
 
         Args:
             `func`: async main function that takes `client` as argument
             `cache`: cache response to workflow db_results, if cache exists, it will be loaded instead of executing `func`
+            `package_dir`: directory to install `requirements.txt` packages
 
         - To install `from requirements.txt` do all import packages inside it
             - Use `global` keyword to access imported packages globally
@@ -217,7 +228,8 @@ class WorkflowClient:
                 WorkflowClient.run(main)
             ```
         """
-        client = cls()
+        client = cls(package_dir=package_dir)
+        sys.path.insert(0, package_dir)
         if cache and client.load_cached_response():
             client.response_with_results()
         try:

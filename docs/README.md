@@ -2,10 +2,21 @@
 
 Simplest Alfred Client that I use my own projects.
 
+## Usage
+
 ```bash
 pip install alfred5
 ```
-
+- Projects dir structure
+    - Put your codes and `requirements.txt` to `src` folders
+    - Install `alfred5` via 
+        ```bash
+        pip install alfred5 --target=src/lib
+        ```
+    - If u want to use different `--target` for ex `.` use `WorkflowClient.run(packagedir=".")`
+    - Sample of default structure: 
+        - ![structure](https://i.imgur.com/doLWDR4.png)
+    - **If u install all of requirements, dont need to create `requirements.txt` file in `src`**
 - Via `SnippetsClient` API create custom snippets programmaically
 - Via `WorkflowClient` API create custom alfred workflow
     - Craete `requirements.txt` file for your python project to let `alfred5` installs them if needed 🙃
