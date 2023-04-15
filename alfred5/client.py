@@ -259,6 +259,7 @@ class WorkflowClient:
         icon_path: str | Path | None = None,
         arg: str = "",
         http_downloader: Callable[[str], str] | None = None,
+        index: int | None = None,
     ) -> None:
         """Create and add alfred result
 
@@ -274,7 +275,14 @@ class WorkflowClient:
                 self.log(f"downloading icon from {icon_path}")
                 icon_path = http_downloader(str(icon_path))
             icon = Result.Icon(str(icon_path))
-        self.results.append(Result(title=title, subtitle=subtitle, icon=icon, arg=arg))
+        if index is not None:
+            self.results.insert(
+                index, Result(title=title, subtitle=subtitle, icon=icon, arg=arg)
+            )
+        else:
+            self.results.append(
+                Result(title=title, subtitle=subtitle, icon=icon, arg=arg)
+            )
 
     def error_response(
         self,
