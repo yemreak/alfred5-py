@@ -11,7 +11,7 @@ pip install alfred5
     - Put your codes and `requirements.txt` to `src` folders
     - Install `alfred5` via 
         ```bash
-        pip install alfred5 --target=src/lib
+        pip install alfred5 --target=src/libs
         ```
     - Add the top of the `main.py`
         ```python
