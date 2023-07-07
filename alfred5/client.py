@@ -1,22 +1,23 @@
 from __future__ import annotations
-from logging import Logger, StreamHandler
+
 import json
-import pkg_resources
-from .models import Result
-from traceback import format_exc
 import sys
 from asyncio import run
 from collections.abc import Callable, Coroutine
+from logging import Logger, StreamHandler
 from pathlib import Path
+from plistlib import load as plist_load
 from shutil import copy2, move
 from tempfile import TemporaryDirectory
-from zipfile import ZIP_DEFLATED, ZipFile
-from ruamel.yaml import load as yaml_load, dump as yaml_dump
-from plistlib import load as plist_load
-from .models import SNIPPET_INFO_TEMPLATE, Result, Snippet
+from traceback import format_exc
 from typing import NoReturn
+from zipfile import ZIP_DEFLATED, ZipFile
+
+import pkg_resources
+from yaml import safe_dump, safe_load
+
 from .errors import WorkflowError
-from ruamel.yaml import YAML
+from .models import SNIPPET_INFO_TEMPLATE, Result, Snippet
 
 
 class SnippetClient:
@@ -103,8 +104,6 @@ class WorkflowClient:
         self.db_results = self.datadir / "results.yml"
         self.log(f"db_results: {self.db_results}")
 
-        self.yaml = YAML()
-
         self.results = []
 
     def log(self, msg: str):
@@ -153,7 +152,7 @@ class WorkflowClient:
             self.db_results.parent.mkdir(parents=True, exist_ok=True)
             self.db_results.touch()
         with self.db_results.open("r") as f:
-            data = yaml_load(f) or {}
+            data = safe_load(f) or {}
         data[self.bare_query] = [
             {
                 "title": result.title,
@@ -164,7 +163,7 @@ class WorkflowClient:
             for result in self.results
         ]
         with self.db_results.open("w") as f:
-            yaml_dump(data, f)
+            safe_dump(data, f)
             self.log(f"cached response to {self.db_results}")
 
     def load_cached_response(self) -> bool:
@@ -176,7 +175,7 @@ class WorkflowClient:
         self.log(f"checking if `{self.bare_query}` exists in `{self.db_results}`")
         if self.db_results.exists():
             with self.db_results.open("r") as f:
-                data: dict[str, list[dict[str, str]]] = self.yaml.load(f)
+                data: dict[str, list[dict[str, str]]] = safe_load(f)
                 self.log(f"loaded data from {self.db_results} {len(data.keys())}")
                 if self.bare_query and self.bare_query in data:
                     self.results = [

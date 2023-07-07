@@ -6,10 +6,11 @@ References:
 
 from glob import glob
 from os.path import basename, splitext
-from setuptools import find_packages, setup
 from pathlib import Path
 
-VERSION = "1.1.4"
+from setuptools import find_packages, setup
+
+VERSION = "1.1.5"
 DESCRIPTION = "Simple python wrapper for alfred5 workflow / snippets"
 README_PATH = "docs/README.md"
 USERNAME = "yedhrab"
@@ -22,7 +23,7 @@ KEYWORDS = [
     "alfred-workflows",
     "alfred-snippets",
 ]
-INSTALL_REQUIRES = ["aiohttp==3.8.4", "ruamel.yaml==0.17.21"]
+INSTALL_REQUIRES = ["aiohttp==3.8.4", "PyYAML==6.0"]
 EXSTRAS_REQUIRE = {
     "dev": [
         "black==23.3.0",
