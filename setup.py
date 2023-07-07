@@ -10,7 +10,7 @@ from pathlib import Path
 
 from setuptools import find_packages, setup
 
-VERSION = "1.1.5"
+VERSION = "1.1.6"
 DESCRIPTION = "Simple python wrapper for alfred5 workflow / snippets"
 README_PATH = "docs/README.md"
 USERNAME = "yedhrab"
