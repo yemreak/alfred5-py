@@ -2,6 +2,8 @@
 
 Simplest Alfred Client that I use my own projects.
 
+Read this blog => [Developing alfred5 workflow using alfred5 and python](https://yemreak.com/blog/developing-alfred5-workflow-using-alfred5-python-package)
+
 ## Usage
 
 ```bash
