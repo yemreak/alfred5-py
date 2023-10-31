@@ -20,14 +20,15 @@ pip3 install alfred5 --target=src/libs
             sys.path.insert(0, "src/libs")
         ```
         - ![main](https://i.imgur.com/O6rYLQA.png)
+        - ~ [MindEase Theme](https://marketplace.visualstudio.com/items?itemName=yemreak.mindease-vscode-theme)
     - If u want to use different `--target` for ex `.` use `WorkflowClient.run(packagedir=".")`
     - Sample of default structure: 
         - ![structure](https://i.imgur.com/doLWDR4.png)
-        - [~ MindEase Theme](https://marketplace.visualstudio.com/items?itemName=yemreak.mindease-vscode-theme)
+        - ~ [MindEase Theme](https://marketplace.visualstudio.com/items?itemName=yemreak.mindease-vscode-theme)
     - **If u install all of requirements, dont need to create `requirements.txt` file in `src`**
     - _If you use `vscode`, add the code that below to `.vscode/settings.json` to debug your file_
         - ![vscode](https://i.imgur.com/QeseMTr.png)
-        - [~ MindEase Theme](https://marketplace.visualstudio.com/items?itemName=yemreak.mindease-vscode-theme)
+        - ~ [MindEase Theme](https://marketplace.visualstudio.com/items?itemName=yemreak.mindease-vscode-theme)
         ```json
         {
             "python.analysis.extraPaths": [
