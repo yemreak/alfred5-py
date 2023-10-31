@@ -5,13 +5,13 @@ Simplest Alfred Client that I use my own projects.
 ## Usage
 
 ```bash
-pip install alfred5
+pip3 install alfred5 --target=src/libs
 ```
 - Projects dir structure
     - Put your codes and `requirements.txt` to `src` folders
     - Install `alfred5` via 
         ```bash
-        pip install alfred5 --target=src/libs
+        pip3 install alfred5 --target=src/libs
         ```
     - Add the top of the `main.py`
         ```python
